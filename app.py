@@ -1,75 +1,56 @@
 import argparse
-import json
 import logging
+import json
+from pathlib import Path
 
-import imageio.v2 as imageio
+import requests
+from uploader import disable_ssl_verification, authenticate, create_project, upload_batches
 
-import imagestuff.image_ops as imgops
-
-
-def create_parser(defaults):
+def create_parser():
     parser = argparse.ArgumentParser(
-        description="CLI tool to process images with inversion or thresholding."
+        description="CVAT CLI tool to upload images in batches as tasks in a project."
+    )
+
+    parser.add_argument(
+        "--project-name",
+        type=str,
+        default="AUTO Project",
+        help="Name of the CVAT project to create or reuse (default: Auto Project)",
+    )
+
+    parser.add_argument(
+        "--image-dir",
+        type=Path,
+        default=Path("assets/"),
+        help="Directory with .jpg/.png images (default: assets/)",
+    )
+
+    parser.add_argument(
+        "--images-per-task",
+        type=int,
+        default=10,
+        help="Number of images per one generated task (default: 10)",
+    )
+    parser.add_argument(
+        "--username",
+        type=str,
+        required=True,
+        help="CVAT username",
+    )
+    parser.add_argument(
+        "--password",
+        type=str,
+        required=True,
+        help="CVAT password",
     )
     parser.add_argument(
         "--debug",
         action="store_true",
-        help="Enable debug mode",
+        help="Enable debug logging",
     )
-
-    subparsers = parser.add_subparsers(
-        dest="command",
-        required=True,
-        help="Available commands",
-    )
-
-    parser_invert = subparsers.add_parser(
-        "invert",
-        help="Invert the input image.",
-    )
-    parser_invert.add_argument(
-        "--input",
-        type=str,
-        help="Path to the input image.",
-        required=True,
-    )
-    parser_invert.add_argument(
-        "--output",
-        type=str,
-        help="Path to save the processed image.",
-        required=True,
-    )
-
-    # Threshold command
-    parser_threshold = subparsers.add_parser(
-        "threshold",
-        help="Apply thresholding to the input image.",
-    )
-    parser_threshold.add_argument(
-        "--input",
-        type=str,
-        help="Path to the input image.",
-        required=True,
-    )
-    parser_threshold.add_argument(
-        "--output",
-        type=str,
-        help="Path to save the processed image.",
-        required=True,
-    )
-
-    def_thr = defaults["default_threshold"]
-    parser_threshold.add_argument(
-        "--threshold",
-        type=int or None,
-        help=f"Threshold value (0-255). Default: {def_thr}",
-        default=def_thr,
-        required=False,
-    )
-
     return parser.parse_args()
 
-
+#requires later fixes, does not work for me currently
 def setup_logging(debug):
     level = logging.DEBUG if debug else logging.INFO
     logging.basicConfig(
@@ -78,37 +59,31 @@ def setup_logging(debug):
         datefmt="%Y-%m-%d %H:%M:%S",
     )
 
-
+#will be resolved later, for now default label setup lives inside uploader.py
 def load_config(path="config/defaults.json"):
     with open(path) as f:
         return json.load(f)
 
-
-def command_invert(input_path, output_path):
-    img = imageio.imread(input_path)
-    inverted = imgops.invert_image(img)
-    imageio.imsave(output_path, inverted)
-
-
-def command_threshold(input_path, output_path, threshold):
-    img = imageio.imread(input_path)
-    thresholded = imgops.threshold_image(img, threshold)
-    imageio.imsave(output_path, thresholded)
-
-
 def main():
-    defaults = load_config()
-    args = create_parser(defaults)
+    args = create_parser()
     setup_logging(args.debug)
     logging.debug(f"Parsed arguments: {args}")
 
-    if args.command == "invert":
-        logging.info("Processing image inversion...")
-        command_invert(args.input, args.output)
-    elif args.command == "threshold":
-        logging.info("Processing image thresholding...")
-        command_threshold(args.input, args.output, args.threshold)
+    disable_ssl_verification()
+    logging.debug("SSL verification disabled")
 
+    session = requests.Session()
+    session.verify = False
+    host = "https://stinger.ad.ujv.cz"
+    logging.debug(f"Session initialized. Host: {host}")
+
+    authenticate(session, host, args.username, args.password)
+    logging.debug("Authenticated successfully")
+
+    client, project = create_project(session, host, args.username, args.password, args.project_name)
+    logging.debug(f"Project ready: {project.name} (ID: {project.id})")
+
+    upload_batches(client, session, host, project, args.image_dir, args.images_per_task)
 
 if __name__ == "__main__":
     main()
