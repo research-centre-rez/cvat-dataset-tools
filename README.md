@@ -1,8 +1,9 @@
-# YOUR project name
+# CVAT dataset tools
 
 ## Description
 
-This is where you put the description of your project. In this example, there is an application that either inverts or thresholds it based on user input. 
+CLI tool for uploading images into CVAT in batch mode, automatically organizing them into a project and splitting them into separate tasks.
+
 
 ## Structure
 
@@ -10,19 +11,22 @@ This is where you put the description of your project. In this example, there is
 ├── README.md
 ├── app.py
 ├── assets
+│   └── default_images
+│       ├── fuel_rod1.jpg
+│       └── fuel_rod2.jpg
 ├── config
-├── notebooks
-│   └── example.md
-├── src
-│   └── image_stuff
-└── pyproject.toml
+│   └── labels.json
+├── pyproject.toml
+└── src
+    └── uploader
+        ├── __init__.py
+        └── uploader.py
 ```
 
 **app.py** - script for running the code
-**assets** - folder with data required for the application
+**assets** - folder with data the application will be processing
 **config** - folder with configuration files
-**notebooks** - folder with notebooks. Note that the notebooks are stored in markdown format. Use `jupytext --to ipynb <notebook>` to convert them to ipynb.
-**src.image_stuff** - folder with the source code
+**src.uploader** - folder with the source code
 **pyproject.toml** - configuration file for the project
 
 
@@ -33,10 +37,16 @@ This library can be installed as a module using pip
 Create a virtual environment and activate it. Then install the application via pip.
 
 ```bash
+python3 -m venv .venv
+source .venv/bin/activate
 pip install .
 ```
 
-Consider using flag `-e` for editable mode
+Consider using flag `-e` for editable mode e.g.
+
+```bash
+pip install -e .
+```
 
 ## Usage
 
@@ -45,33 +55,38 @@ This can be run either as a script with the following commands
 ```bash
 $ python app.py --help
 
-usage: app.py [-h] [--debug] {invert,threshold} ...
+usage: app.py [-h] [--project-name PROJECT_NAME] [--image-dir IMAGE_DIR]
+              [--images-per-task IMAGES_PER_TASK] --username USERNAME
+              --password PASSWORD [--debug]
 
-CLI tool to process images with inversion or thresholding.
-
-positional arguments:
-  {invert,threshold}  Available commands
-    invert            Invert the input image.
-    threshold         Apply thresholding to the input image.
+CVAT CLI tool to upload images in batches as tasks in a project.
 
 options:
-  -h, --help          show this help message and exit
-  --debug             Enable debug mode
+  -h, --help            show this help message and exit
+  --project-name PROJECT_NAME
+                        Name of the CVAT project to create or reuse (default: Auto
+                        Project)
+  --image-dir IMAGE_DIR
+                        Directory with .jpg/.png images (default: assets/)
+  --images-per-task IMAGES_PER_TASK
+                        Number of images per one generated task (default: 10)
+  --username USERNAME   CVAT username
+  --password PASSWORD   CVAT password
+  --debug               Enable debug logging
 ```
 
 **Example**:
 
 CLI:
 ```
-python app.py threshold --input assets/plt.png --output output/t.png --threshold 100
-python app.py invert --input assets/plt.png --output output/t.png
-
-# activate debug logging with
-python app.py --debug threshold --input assets/plt.png --output output/t.png
+python app.py \
+  --image-dir assets/data_1 \
+  --images-per-task 50 \
+  --username your_username \
+  --password your_password \
+  --project-name "Your_project_name" \
+  --debug #if necessary
 ```
-
-Notebook:
-See example in `notebooks` folder. (Note that you need to convert `.md` to `.ipynb` using `jupytext --to ipynb <notebook>`)
 
 ## License
 
