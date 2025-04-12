@@ -1,13 +1,12 @@
 [build-system]
 requires = ["setuptools", "wheel"]
-build-backend = "setuptools.build_meta" 
-
+build-backend = "setuptools.build_meta"
 
 [project]
-name = "imagestuff" 
-version = "0.0.1"  
+name = "cvat-dataset-tools"
+version = "0.1.0"
 
-description = "A dymmy package demonstrating the structure of a Python package."
+description = "CLI tool to upload images into CVAT as batch tasks"
 
 readme = "README.md"
 
@@ -15,71 +14,46 @@ requires-python = ">=3.11"
 
 license = {file = "LICENSE.txt"}
 
-keywords = ["image","core","compouter","vision"]
+keywords = ["CVAT", "upload", "annotations", "dataset", "images"]
 
 authors = [
-  {name = "Jaroslav Knotek", email = "jaroslav.knotek@cvrez.cz" }
+  {name = "Daniil Sultanov", email = "daniil.sultanov@cvrez.cz"}
 ]
 
-# maintainers = [
-#   {name = "A. Great Maintainer", email = "maintainer@example.com" }
-# ]
-
 classifiers = [
-  # How mature is this project? Common values are
-  #   3 - Alpha
-  #   4 - Beta
-  #   5 - Production/Stable
   "Development Status :: 3 - Alpha",
-  "Intended Audience :: Developers",
+  "Intended Audience :: CVAT users",
   "Topic :: Software Development :: Build Tools",
   "License :: OSI Approved :: MIT License",
 
-  # Specify the Python versions you support here. In particular, ensure
-  # that you indicate you support Python 3. These classifiers are *not*
-  # checked by "pip install". See instead "requires-python" key in this file.
   "Programming Language :: Python :: 3",
   "Programming Language :: Python :: 3.11",
-  "Programming Language :: Python :: 3 :: Only",
 ]
 
 dependencies = [
-  "imageio", 
-  "numpy==1.26.0", # last version before numpy 2
-  "matplotlib",
+  "requests",
+  "tqdm",
+  "python-dotenv",
+  "cvat-sdk>=2.0.0",
+  "urllib3",
 ]
 
-# List additional groups of dependencies here (e.g. development
-# dependencies). Users will be able to install these using the "extras"
-# syntax, for example:
-#
-#   $ pip install sampleproject[dev]
-#
-# Optional dependencies the project provides. These are commonly 
-# referred to as "extras". For a more extensive definition see:
-# https://packaging.python.org/en/latest/specifications/dependency-specifiers/#extras
 [project.optional-dependencies]
-dev = ["check-manifest","pytest","jupytext"]
-test = ["coverage"]
+dev = ["pytest", "jupytext"]
 
 [project.urls]
-"Homepage" = "https://github.com/research-centre-rez/python-research-template"
-"Bug Reports" = "https://github.com/research-centre-rez/python-research-template/issues"
-"Source" = "https://github.com/research-centre-rez/python-research-template"
+"Homepage" = "https://github.com/research-centre-rez/cvat-dataset-tools"
+"Bug Reports" = "https://github.com/research-centre-rez/cvat-dataset-tools/issues"
+"Source" = "https://github.com/research-centre-rez/cvat-dataset-tools"
 
 [tool.setuptools.packages.find]
 where = ["src"]
-include = ["imagestuff"]
+include = ["uploader"]
 
 [tool.setuptools.package-data]
-mypkg = ["assets/*", "config/*"]
+uploader = ["assets/*", "config/*"]
 
-
-# pyproject.toml
 [tool.pytest.ini_options]
-asyncio_mode = "auto"
 minversion = "6.0"
 addopts = "-ra -q"
-testpaths = [
-    "tests", # hopefully
-]
+testpaths = ["tests"]

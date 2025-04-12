@@ -50,7 +50,6 @@ def create_parser():
     )
     return parser.parse_args()
 
-#requires later fixes, does not work for me currently
 def setup_logging(debug):
     level = logging.DEBUG if debug else logging.INFO
     logging.basicConfig(

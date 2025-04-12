@@ -62,23 +62,32 @@ def upload_batches(client, session: requests.Session, host: str, project, image_
 
         task = client.tasks.create(TaskWriteRequest(name=f"Auto Task {i+1}", project_id=project.id))
 
-        session.get(f"{host}/tasks/{task.id}/data")
-        csrf_token = session.cookies.get("csrftoken")
+        upload_zip(session, host, task.id, zip_path)
 
-        with open(zip_path, "rb") as archive_file:
-            files = {"client_files[0]": (archive_file.name, archive_file, "application/zip")}
-            session.post(
-                f"{host}/api/tasks/{task.id}/data",
-                files=files,
-                data={
-                    "image_quality": 100,
-                    "use_zip_chunks": "false",
-                    "use_cache": "false",
-                    "image_archive": ""
-                },
-                headers={
-                    "X-CSRFToken": csrf_token,
-                    "Referer": f"{host}/tasks/{task.id}/data"
-                },
-                cookies={"csrftoken": csrf_token}
-            )
+        try:
+            zip_path.unlink()
+            logging.debug(f"Deleted temporary zip archive: {zip_path}")
+        except Exception as e:
+            logging.warning(f"Could not delete temporary file {zip_path}: {e}")
+
+def upload_zip(session: requests.Session, host: str, task_id: int, zip_path: Path):
+    session.get(f"{host}/tasks/{task_id}/data")
+    csrf_token = session.cookies.get("csrftoken")
+
+    with open(zip_path, "rb") as archive_file:
+        files = {"client_files[0]": (archive_file.name, archive_file, "application/zip")}
+        session.post(
+            f"{host}/api/tasks/{task_id}/data",
+            files=files,
+            data={
+                "image_quality": 100,
+                "use_zip_chunks": "false",
+                "use_cache": "false",
+                "image_archive": ""
+            },
+            headers={
+                "X-CSRFToken": csrf_token,
+                "Referer": f"{host}/tasks/{task_id}/data"
+            },
+            cookies={"csrftoken": csrf_token}
+        )
