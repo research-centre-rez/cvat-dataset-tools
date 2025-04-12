@@ -58,8 +58,7 @@ def setup_logging(debug):
         datefmt="%Y-%m-%d %H:%M:%S",
     )
 
-#will be resolved later, for now default label setup lives inside uploader.py
-def load_config(path="config/defaults.json"):
+def load_config(path="config/labels.json"):
     with open(path) as f:
         return json.load(f)
 

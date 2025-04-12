@@ -1,4 +1,5 @@
 import os
+import json
 import zipfile
 import requests
 import urllib3
@@ -39,12 +40,22 @@ def create_project(session: requests.Session, host: str, username: str, password
         project = client.projects.create(
             ProjectWriteRequest(
                 name=project_name,
-                labels=[
-                    PatchedLabelRequest(name="POI", color="#00ff00"),
-                ]
+                labels=load_labels()
             )
         )
         return client, project
+
+def load_labels(path="config/labels.json"):
+    with open(path) as f:
+        labels_config = json.load(f)
+    return [
+        PatchedLabelRequest(
+            name=label["name"],
+            color=label.get("color", "#ffffff"),
+            attributes=label.get("attributes", [])
+        )
+        for label in labels_config
+    ]
 
 def upload_batches(client, session: requests.Session, host: str, project, image_dir: Path, images_per_task: int):
     all_images = sorted([p for p in image_dir.rglob("*") if p.suffix.lower() in [".jpg", ".png"]])
