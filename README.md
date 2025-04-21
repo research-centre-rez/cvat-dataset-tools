@@ -47,6 +47,17 @@ Consider using flag `-e` for editable mode e.g.
 ```bash
 pip install -e .
 ```
+Before working with the code, for security reasons do the following steps to protect your password:
+
+For linux users:
+```bash
+read -s -p "Password: " SCR_PASS
+```
+For MacOS users (copy and paste both commands into the terminal at the same time):
+```bash
+echo -n "Password: "
+read -s SCR_PASS
+```
 
 ## Usage
 

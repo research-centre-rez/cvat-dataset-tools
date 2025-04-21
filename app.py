@@ -2,9 +2,13 @@ import argparse
 import logging
 import json
 from pathlib import Path
-
+import urllib3
 import requests
 from uploader import disable_ssl_verification, authenticate, create_project, upload_batches
+import os
+
+urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
+os.environ["CURL_CA_BUNDLE"] = ""
 
 def create_parser():
     parser = argparse.ArgumentParser(
@@ -14,15 +18,13 @@ def create_parser():
     parser.add_argument(
         "--project-name",
         type=str,
-        default="AUTO Project",
-        help="Name of the CVAT project to create or reuse (default: Auto Project)",
+        help="Name of the CVAT project to create or reuse",
     )
 
     parser.add_argument(
         "--image-dir",
         type=Path,
-        default=Path("assets/"),
-        help="Directory with .jpg/.png images (default: assets/)",
+        help="Directory with .jpg/.png images",
     )
 
     parser.add_argument(
