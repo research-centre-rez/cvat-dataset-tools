@@ -50,6 +50,17 @@ def create_parser():
         action="store_true",
         help="Enable debug logging",
     )
+    
+        parser.add_argument(
+        "--reuse-project",
+        action="store_true",
+        help=(
+            "If set, reuse the existing project owned by the current user. "
+            "If a project with the same name exists but belongs to another user, a new one will be created. "
+            "CVAT allows duplicate project names across users."
+        ),
+    )
+    
     return parser.parse_args()
 
 def setup_logging(debug):
@@ -77,13 +88,25 @@ def main():
     host = "https://stinger.ad.ujv.cz"
     logging.debug(f"Session initialized. Host: {host}")
 
-    authenticate(session, host, args.username, args.password)
-    logging.debug("Authenticated successfully")
+        try:
+        authenticate(session, host, args.username, args.password)
+        logging.info("Authenticated successfully")
 
-    client, project = create_project(session, host, args.username, args.password, args.project_name)
-    logging.debug(f"Project ready: {project.name} (ID: {project.id})")
+        client, project = create_project(
+            session,
+            host,
+            args.username,
+            args.password,
+            args.project_name,
+            reuse_if_exists=args.reuse_project
+        )
+        logging.info(f"Project ready: {project.name} (ID: {project.id})")
 
-    upload_batches(client, session, host, project, args.image_dir, args.images_per_task)
+        upload_batches(client, session, host, project, args.image_dir, args.images_per_task)
+
+    except RuntimeError as e:
+        logging.error(str(e))
+        return 1
 
 if __name__ == "__main__":
     main()
