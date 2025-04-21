@@ -71,7 +71,7 @@ def setup_logging(debug):
         datefmt="%Y-%m-%d %H:%M:%S",
     )
 
-def load_config(path="config/labels.json"):
+def load_config(path="config/default_label_config.json"):
     with open(path) as f:
         return json.load(f)
 

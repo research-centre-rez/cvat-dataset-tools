@@ -50,7 +50,7 @@ def create_project(session: requests.Session, host: str, username: str, password
         )
         return client, project
 
-def load_labels(path="config/labels.json"):
+def load_labels(path="config/default_label_config.json"):
     with open(path) as f:
         labels_config = json.load(f)
     return [

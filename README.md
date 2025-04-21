@@ -11,11 +11,11 @@ CLI tool for uploading images into CVAT in batch mode, automatically organizing 
 ├── README.md
 ├── app.py
 ├── assets
-│   └── default_images
+│   └── test_images
 │       ├── fuel_rod1.jpg
 │       └── fuel_rod2.jpg
 ├── config
-│   └── labels.json
+│   └── default_label_config.json
 ├── pyproject.toml
 └── src
     └── uploader
@@ -24,7 +24,7 @@ CLI tool for uploading images into CVAT in batch mode, automatically organizing 
 ```
 
 **app.py** - script for running the code
-**assets** - folder with data the application will be processing
+**assets** - folder with data required by application to run (contains test images for now)
 **config** - folder with configuration files
 **src.uploader** - folder with the source code
 **pyproject.toml** - configuration file for the project
@@ -66,24 +66,31 @@ This can be run either as a script with the following commands
 ```bash
 $ python app.py --help
 
-usage: app.py [-h] [--project-name PROJECT_NAME] [--image-dir IMAGE_DIR]
-              [--images-per-task IMAGES_PER_TASK] --username USERNAME
-              --password PASSWORD [--debug]
+usage: cvat-uploader [-h] [--project-name PROJECT_NAME]
+                     [--image-dir IMAGE_DIR]
+                     [--images-per-task IMAGES_PER_TASK]
+                     --username USERNAME --password PASSWORD [--debug]
+                     [--reuse-project]
 
 CVAT CLI tool to upload images in batches as tasks in a project.
 
 options:
   -h, --help            show this help message and exit
   --project-name PROJECT_NAME
-                        Name of the CVAT project to create or reuse (default: Auto
-                        Project)
+                        Name of the CVAT project to create or reuse
   --image-dir IMAGE_DIR
-                        Directory with .jpg/.png images (default: assets/)
+                        Directory with .jpg/.png images
   --images-per-task IMAGES_PER_TASK
-                        Number of images per one generated task (default: 10)
+                        Number of images per one generated task (default:
+                        10)
   --username USERNAME   CVAT username
   --password PASSWORD   CVAT password
   --debug               Enable debug logging
+  --reuse-project       If set, reuse the existing project owned by the
+                        current user. If a project with the same name
+                        exists but belongs to another user, a new one will
+                        be created. CVAT allows duplicate project names
+                        across users.
 ```
 
 **Example**:
@@ -96,7 +103,8 @@ python app.py \
   --username your_username \
   --password your_password \
   --project-name "Your_project_name" \
-  --debug #if necessary
+  --debug \#if necessary
+  --reuse-project #if necessary
 ```
 
 ## License
