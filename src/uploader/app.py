@@ -1,4 +1,5 @@
 import argparse
+import importlib
 import logging
 import json
 from pathlib import Path
@@ -51,7 +52,7 @@ def create_parser():
         help="Enable debug logging",
     )
     
-        parser.add_argument(
+    parser.add_argument(
         "--reuse-project",
         action="store_true",
         help=(
@@ -72,7 +73,9 @@ def setup_logging(debug):
     )
 
 def load_config(path="config/default_label_config.json"):
-    with open(path) as f:
+    module_path = importlib.resources.files(__package__)
+    config_path = module_path.joinpath(path)
+    with open(config_path) as f:
         return json.load(f)
 
 def main():
@@ -88,7 +91,13 @@ def main():
     host = "https://stinger.ad.ujv.cz"
     logging.debug(f"Session initialized. Host: {host}")
 
-        try:
+    # TODO: create subcommand dump-config that std outs the config
+    # so that user can change it and reuse it
+    cfg = load_config()
+    print(cfg)
+    # end TODO
+    
+    try:
         authenticate(session, host, args.username, args.password)
         logging.info("Authenticated successfully")
 
@@ -103,7 +112,6 @@ def main():
         logging.info(f"Project ready: {project.name} (ID: {project.id})")
 
         upload_batches(client, session, host, project, args.image_dir, args.images_per_task)
-
     except RuntimeError as e:
         logging.error(str(e))
         return 1
