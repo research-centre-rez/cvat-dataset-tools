@@ -9,25 +9,24 @@ CLI tool for uploading images into CVAT in batch mode, automatically organizing 
 
 ```bash
 ├── README.md
-├── app.py
-├── assets
+├── pyproject.toml
+├── example
 │   └── test_images
 │       ├── fuel_rod1.jpg
 │       └── fuel_rod2.jpg
-├── config
-│   └── default_label_config.json
-├── pyproject.toml
 └── src
     └── uploader
         ├── __init__.py
-        └── uploader.py
+        ├── uploader.py
+        └── config
+            └── default_label_config.json
 ```
 
-**app.py** - script for running the code
+**pyproject.toml** - configuration file for the project
 **assets** - folder with data required by application to run (contains test images for now)
 **config** - folder with configuration files
 **src.uploader** - folder with the source code
-**pyproject.toml** - configuration file for the project
+**app.py** - script for running the code
 
 
 ## Installation
@@ -98,15 +97,16 @@ options:
 CLI:
 ```
 python app.py \
-  --image-dir assets/data_1 \
+  --image-dir example/test_images \
   --images-per-task 50 \
   --username your_username \
   --password your_password \
   --project-name "Your_project_name" \
-  --debug \#if necessary
-  --reuse-project #if necessary
+#  [--debug]
+#  [--reuse-project]
 ```
 
 ## License
 
 This project is proprietary and confidential. All rights reserved.
+
