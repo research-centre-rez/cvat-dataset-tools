@@ -62,6 +62,12 @@ def create_parser():
         ),
     )
     
+    parser.add_argument(
+        "--dump-config",
+        action="store_true",
+        help="Dump all JSON configuration files and exit.",
+    )
+    
     return parser.parse_args()
 
 def setup_logging(debug):
@@ -78,8 +84,34 @@ def load_config(path="config/default_label_config.json"):
     with open(config_path) as f:
         return json.load(f)
 
+#do not forget to remove if goes wrong
+def dump_configs():
+    config_dir = Path(__file__).parent / "config"
+    if not config_dir.exists():
+        logging.error(f"Config directory '{config_dir}' not found.")
+        return
+
+    json_files = list(config_dir.glob("*.json"))
+    if not json_files:
+        logging.info("No configuration files found.")
+        return
+
+    for json_file in json_files:
+        #We do not know how many .json files there will be in the future in config so better
+        #to dump them with filenames
+        print(json_file.name)
+        with open(json_file, "r", encoding="utf-8") as f:
+            data = json.load(f)
+            print(json.dumps(data, indent=4, ensure_ascii=False))
+
 def main():
     args = create_parser()
+    
+    #do not forget to remove if goes wrong
+    if args.dump_config:
+        dump_configs()
+        return 0
+    
     setup_logging(args.debug)
     logging.debug(f"Parsed arguments: {args}")
 

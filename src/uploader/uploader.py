@@ -25,32 +25,35 @@ def authenticate(session: requests.Session, host: str, username: str, password: 
         cookies={"csrftoken": csrf_token}
     )
 
-def create_project(session: requests.Session, host: str, username: str, password: str, project_name: str, reuse_if_exists: bool = False):
-    with make_client(host=host, credentials=(username, password)) as client:
-        current_user = client.users.retrieve_current_user()
+def create_project(client, project_name: str, reuse_if_exists: bool = False):
+     current_user = client.users.retrieve_current_user()
+     projects = {p.name: p for p in client.projects.list()}
+     found_project = projects.get(project_name)
 
-        for existing_project in client.projects.list():
-            if existing_project.name == project_name:
-                if not reuse_if_exists:
-                    raise RuntimeError(
-                        f"A project named '{project_name}' already exists (owned by user {existing_project.owner.username}). "
-                        f"Use --reuse-project to reuse it, or choose a different project name."
-                    )
-                if existing_project.owner.id != current_user.id:
-                    raise RuntimeError(
-                        f"Cannot reuse project '{project_name}' owned by another user (ID: {existing_project.owner.username})."
-                    )
-                return client, existing_project
+     if found_project is None:
+         project = client.projects.create(
+             ProjectWriteRequest(
+                 name=project_name,
+                 labels=load_labels()
+             )
+         )
+         return project
 
-        project = client.projects.create(
-            ProjectWriteRequest(
-                name=project_name,
-                labels=load_labels()
-            )
-        )
-        return client, project
+     if not reuse_if_exists:
+         raise RuntimeError(
+             f"A project named '{project_name}' already exists (owned by user {found_project.owner.username}). "
+             f"Use --reuse-project to reuse it, or choose a different project name."
+         )
 
-def load_labels(path="config/default_label_config.json"):
+     if found_project.owner.id != current_user.id:
+         raise RuntimeError(
+             f"Cannot reuse project '{project_name}' owned by another user (username: {found_project.owner.username})."
+         )
+
+     return found_project
+
+#here it was not recognising the hardcoded path so changed it like that
+def load_labels(path = Path(__file__).parent / "config" / "default_label_config.json"):
     with open(path) as f:
         labels_config = json.load(f)
     return [

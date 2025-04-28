@@ -60,16 +60,16 @@ read -s SCR_PASS
 
 ## Usage
 
-This can be run either as a script with the following commands
+After installing, app can be run as follows:
 
 ```bash
-$ python app.py --help
+$ python cvat-dataset-tools --help
 
-usage: cvat-uploader [-h] [--project-name PROJECT_NAME]
-                     [--image-dir IMAGE_DIR]
-                     [--images-per-task IMAGES_PER_TASK]
-                     --username USERNAME --password PASSWORD [--debug]
-                     [--reuse-project]
+usage: cvat-dataset-tools [-h] [--project-name PROJECT_NAME]
+                          [--image-dir IMAGE_DIR]
+                          [--images-per-task IMAGES_PER_TASK]
+                          [--username USERNAME] [--password PASSWORD] [--debug]
+                          [--reuse-project] [--dump-config]
 
 CVAT CLI tool to upload images in batches as tasks in a project.
 
@@ -80,16 +80,15 @@ options:
   --image-dir IMAGE_DIR
                         Directory with .jpg/.png images
   --images-per-task IMAGES_PER_TASK
-                        Number of images per one generated task (default:
-                        10)
+                        Number of images per one generated task (default: 10)
   --username USERNAME   CVAT username
   --password PASSWORD   CVAT password
   --debug               Enable debug logging
-  --reuse-project       If set, reuse the existing project owned by the
-                        current user. If a project with the same name
-                        exists but belongs to another user, a new one will
-                        be created. CVAT allows duplicate project names
-                        across users.
+  --reuse-project       If set, reuse the existing project owned by the current
+                        user. If a project with the same name exists but belongs
+                        to another user, a new one will be created. CVAT allows
+                        duplicate project names across users.
+  --dump-config         Dump all JSON configuration files and exit.
 ```
 
 **Example**:
@@ -104,6 +103,23 @@ python app.py \
   --project-name "Your_project_name" \
 #  [--debug]
 #  [--reuse-project]
+```
+
+If you want to change the label configuration you can see the currect config via:
+```
+python cvat-dataset-tools --dump-config
+```
+Example output:
+```
+default_label_config.json
+[
+    {
+        "name": "POI",
+        "color": "#66ff66",
+        "type": "any",
+        "attributes": []
+    }
+]
 ```
 
 ## License
