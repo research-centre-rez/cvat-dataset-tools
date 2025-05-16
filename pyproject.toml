@@ -1,0 +1,104 @@
+[build-system]
+requires = ["setuptools", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "cvat-dataset-tools"
+version = "0.1.0"
+
+description = "CLI tool to upload images into CVAT as batch tasks"
+
+readme = "README.md"
+
+requires-python = ">=3.11"
+
+license = {file = "LICENSE.txt"}
+
+keywords = ["CVAT", "upload", "annotations", "dataset", "images"]
+
+authors = [
+  {name = "Daniil Sultanov", email = "daniil.sultanov@cvrez.cz"}
+]
+
+classifiers = [
+  "Development Status :: 3 - Alpha",
+  "Intended Audience :: CVAT users",
+  "Topic :: Software Development :: Build Tools",
+  "License :: OSI Approved :: MIT License",
+
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.11",
+]
+
+dependencies = [
+  "requests",
+  "tqdm",
+  "python-dotenv",
+  "cvat-sdk>=2.0.0",
+  "urllib3",
+]
+
+[project.optional-dependencies]
+dev = ["pytest", "jupytext"]
+
+
+[project.scripts]
+cvat-dataset-tools = "uploader.app:main"
+
+[project.urls]
+"Homepage" = "https://github.com/research-centre-rez/cvat-dataset-tools"
+"Bug Reports" = "https://github.com/research-centre-rez/cvat-dataset-tools/issues"
+"Source" = "https://github.com/research-centre-rez/cvat-dataset-tools"
+
+[tool.ruff.lint]
+select = [
+    "F",
+    "E",
+    "W",
+    "C90",
+    "I",
+    "N",
+    "UP",
+    "YTT",
+    "B",
+    "A",
+    "COM",
+    "C4",
+    "DTZ",
+    "ISC",
+    "ICN",
+    "INP",
+    "PIE",
+    "PT",
+    "RET",
+    "SIM",
+    "TID",
+    "ARG",
+    "PLC",
+    "PLE",
+    "PLR",
+    "PLW",
+    "RUF",
+]
+ignore = [
+    "D105",
+    "D107",
+    "D212",
+    "UP006",
+    "UP007",
+    "PLC1901",
+    "PLR2004"
+]
+unfixable = ["F841"]
+
+[tool.setuptools.packages.find]
+where = ["src"]
+include = ["uploader"]
+
+[tool.setuptools.package-data]
+uploader = ["assets/*", "config/*"]
+
+[tool.pytest.ini_options]
+minversion = "6.0"
+addopts = "-ra -q"
+testpaths = ["tests"]
