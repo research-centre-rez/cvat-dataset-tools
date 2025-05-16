@@ -4,8 +4,8 @@ import requests
 import logging
 from pathlib import Path
 from tqdm import tqdm
-from cvat_sdk.core import make_client
 from cvat_sdk.models import ProjectWriteRequest, PatchedLabelRequest, TaskWriteRequest
+
 from urllib3.poolmanager import PoolManager
 from cvat_sdk.api_client import rest
 
@@ -25,7 +25,7 @@ def authenticate(session: requests.Session, host: str, username: str, password: 
         cookies={"csrftoken": csrf_token}
     )
 
-def create_project(client, project_name: str, reuse_if_exists: bool = False):
+def find_or_create_project(client, project_name: str, reuse_if_exists: bool = False):
      current_user = client.users.retrieve_current_user()
      projects = {p.name: p for p in client.projects.list()}
      found_project = projects.get(project_name)
